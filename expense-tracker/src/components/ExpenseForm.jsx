@@ -11,7 +11,7 @@ const CATEGORIES = [
   'Other'
 ];
 
-function ExpenseForm() {
+function ExpenseForm({ onAddExpense }) {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [date, setDate] = useState('');
@@ -48,7 +48,8 @@ function ExpenseForm() {
         date,
         note
       };
-      console.log('Expense Submitted:', expenseData);
+      
+      onAddExpense(expenseData);
       
       // Clear form
       setAmount('');
