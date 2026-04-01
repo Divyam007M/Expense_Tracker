@@ -1,5 +1,0 @@
-streamlit
-langchain
-langgraph
-langchain-community
-typing-extensions
