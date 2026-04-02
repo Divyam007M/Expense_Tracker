@@ -4,6 +4,7 @@ import ExpenseForm from './components/ExpenseForm';
 import ExpenseList from './components/ExpenseList';
 import ExpenseSummary from './components/ExpenseSummary';
 import ExpenseChart from './components/ExpenseChart';
+import { v4 as uuidv4 } from 'uuid';
 
 function App() {
   const [expenses, setExpenses] = useState(() => {
@@ -23,7 +24,7 @@ function App() {
   }, [expenses]);
 
   const handleAddExpense = (expense) => {
-    const newExpense = { ...expense, id: Date.now() };
+    const newExpense = { ...expense, id: uuidv4() };
     setExpenses([...expenses, newExpense]);
   };
 

@@ -13,6 +13,13 @@ const CATEGORIES = [
 
 function ExpenseList({ expenses, onDeleteExpense }) {
   const [filter, setFilter] = useState('All');
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopy = (id) => {
+    navigator.clipboard.writeText(id.toString());
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   const filteredExpenses = (expenses || []).filter(
     (expense) => filter === 'All' || expense.category === filter
@@ -58,9 +65,23 @@ function ExpenseList({ expenses, onDeleteExpense }) {
               <div key={expense.id} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <span className="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mb-1">
-                      {expense.category}
-                    </span>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {expense.category}
+                      </span>
+                      <span 
+                        className="font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded text-[10px] flex items-center gap-1 cursor-pointer transition-colors hover:bg-gray-200"
+                        title={expense.id}
+                        onClick={() => handleCopy(expense.id)}
+                      >
+                        {(expense.id?.toString() || '').substring(0, 8)}
+                        {copiedId === expense.id ? (
+                          <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                        ) : (
+                          <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        )}
+                      </span>
+                    </div>
                     <p className="text-sm font-medium text-gray-900">{expense.date}</p>
                   </div>
                   <div className="text-right">
@@ -88,6 +109,7 @@ function ExpenseList({ expenses, onDeleteExpense }) {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
@@ -98,6 +120,24 @@ function ExpenseList({ expenses, onDeleteExpense }) {
               <tbody className="bg-white divide-y divide-gray-200">
                 {sortedExpenses.map((expense) => (
                   <tr key={expense.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex items-center gap-2 group">
+                        <span className="font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded text-xs" title={expense.id}>
+                          {(expense.id?.toString() || '').substring(0, 8)}
+                        </span>
+                        <button 
+                          onClick={() => handleCopy(expense.id)}
+                          className="text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Copy full ID"
+                        >
+                          {copiedId === expense.id ? (
+                            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                          )}
+                        </button>
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{expense.date}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
