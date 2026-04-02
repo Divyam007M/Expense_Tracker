@@ -5,6 +5,7 @@ import ExpenseList from './components/ExpenseList';
 import ExpenseSummary from './components/ExpenseSummary';
 import ExpenseChart from './components/ExpenseChart';
 import DateFilter from './components/DateFilter';
+import EditExpenseModal from './components/EditExpenseModal';
 import { v4 as uuidv4 } from 'uuid';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
   const [filterMonth, setFilterMonth] = useState(''); // 'YYYY-MM'
   const [filterStartDate, setFilterStartDate] = useState(''); // 'YYYY-MM-DD'
   const [filterEndDate, setFilterEndDate] = useState(''); // 'YYYY-MM-DD'
+  const [editingExpense, setEditingExpense] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('expenses', JSON.stringify(expenses));
@@ -36,6 +38,13 @@ function App() {
 
   const handleDeleteExpense = (id) => {
     setExpenses(expenses.filter(expense => expense.id !== id));
+  };
+
+  const handleEditExpense = (updatedExpense) => {
+    setExpenses(expenses.map(expense => 
+      expense.id === updatedExpense.id ? updatedExpense : expense
+    ));
+    setEditingExpense(null);
   };
 
   const handleClearFilter = () => {
@@ -112,9 +121,21 @@ function App() {
             onClear={handleClearFilter}
             onExport={handleExportCSV}
           />
-          <ExpenseList expenses={filteredExpenses} onDeleteExpense={handleDeleteExpense} />
+          <ExpenseList 
+            expenses={filteredExpenses} 
+            onDeleteExpense={handleDeleteExpense} 
+            onEditExpense={(expense) => setEditingExpense(expense)}
+          />
         </div>
       </main>
+      
+      {editingExpense && (
+        <EditExpenseModal 
+          expense={editingExpense}
+          onSave={handleEditExpense}
+          onClose={() => setEditingExpense(null)}
+        />
+      )}
     </div>
   );
 }

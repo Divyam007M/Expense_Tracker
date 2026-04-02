@@ -11,7 +11,7 @@ const CATEGORIES = [
   'Other'
 ];
 
-function ExpenseList({ expenses, onDeleteExpense }) {
+function ExpenseList({ expenses, onDeleteExpense, onEditExpense }) {
   const [filter, setFilter] = useState('All');
   const [copiedId, setCopiedId] = useState(null);
 
@@ -31,9 +31,9 @@ function ExpenseList({ expenses, onDeleteExpense }) {
 
   return (
     <div className="bg-white shadow rounded-xl overflow-hidden border border-gray-100 h-full flex flex-col">
-      <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-xl font-semibold text-gray-800">Recent Transactions</h2>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <label htmlFor="categoryFilter" className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter:</label>
           <select
             id="categoryFilter"
@@ -64,9 +64,9 @@ function ExpenseList({ expenses, onDeleteExpense }) {
             {sortedExpenses.map((expense) => (
               <div key={expense.id} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                  <div className="min-w-0 pr-2">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <span className="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 break-words">
                         {expense.category}
                       </span>
                       <span 
@@ -90,15 +90,26 @@ function ExpenseList({ expenses, onDeleteExpense }) {
                 </div>
                 <div className="flex justify-between items-center mt-2">
                   <p className="text-sm text-gray-500 truncate pr-4">{expense.note || 'No note details'}</p>
-                  <button
-                    onClick={() => onDeleteExpense(expense.id)}
-                    className="text-red-500 hover:text-red-700 p-1.5 rounded-md hover:bg-red-50 transition-colors shrink-0"
-                    title="Delete expense"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                  </button>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => onEditExpense(expense)}
+                      className="text-blue-500 hover:text-blue-700 p-1.5 rounded-md hover:bg-blue-50 transition-colors"
+                      title="Edit expense"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => onDeleteExpense(expense.id)}
+                      className="text-red-500 hover:text-red-700 p-1.5 rounded-md hover:bg-red-50 transition-colors"
+                      title="Delete expense"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -147,15 +158,26 @@ function ExpenseList({ expenses, onDeleteExpense }) {
                     <td className="px-6 py-4 text-sm text-gray-500 max-w-[200px] truncate">{expense.note || '-'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${expense.amount.toFixed(2)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => onDeleteExpense(expense.id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-md transition-colors"
-                        title="Delete expense"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => onEditExpense(expense)}
+                          className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-md transition-colors"
+                          title="Edit expense"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => onDeleteExpense(expense.id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-md transition-colors"
+                          title="Delete expense"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

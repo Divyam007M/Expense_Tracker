@@ -16,8 +16,40 @@ function ExpenseForm({ onAddExpense }) {
   const [category, setCategory] = useState('');
   const [date, setDate] = useState('');
   const [note, setNote] = useState('');
+  const [isCategorising, setIsCategorising] = useState(false);
 
   const [errors, setErrors] = useState({});
+
+  const handleMagicCategorise = async () => {
+    if (!note.trim()) return;
+    
+    setIsCategorising(true);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    const lowerNote = note.toLowerCase();
+    let suggestedCategory = 'Other';
+    
+    if (lowerNote.includes('burger') || lowerNote.includes('food') || lowerNote.includes('lunch') || lowerNote.includes('dinner') || lowerNote.includes('coffee') || lowerNote.includes('grocery') || lowerNote.includes('restaurant')) {
+      suggestedCategory = 'Food & Drink';
+    } else if (lowerNote.includes('uber') || lowerNote.includes('taxi') || lowerNote.includes('bus') || lowerNote.includes('train') || lowerNote.includes('gas') || lowerNote.includes('flight') || lowerNote.includes('lyft') || lowerNote.includes('fuel')) {
+      suggestedCategory = 'Transport';
+    } else if (lowerNote.includes('rent') || lowerNote.includes('mortgage') || lowerNote.includes('hotel') || lowerNote.includes('airbnb') || lowerNote.includes('utility') || lowerNote.includes('electricity') || lowerNote.includes('water')) {
+      suggestedCategory = 'Housing';
+    } else if (lowerNote.includes('doctor') || lowerNote.includes('medicine') || lowerNote.includes('pharmacy') || lowerNote.includes('hospital') || lowerNote.includes('gym') || lowerNote.includes('fitness')) {
+      suggestedCategory = 'Health';
+    } else if (lowerNote.includes('movie') || lowerNote.includes('game') || lowerNote.includes('concert') || lowerNote.includes('ticket') || lowerNote.includes('subscription') || lowerNote.includes('netflix') || lowerNote.includes('spotify')) {
+      suggestedCategory = 'Entertainment';
+    } else if (lowerNote.includes('shirt') || lowerNote.includes('shoes') || lowerNote.includes('amazon') || lowerNote.includes('mall') || lowerNote.includes('clothes') || lowerNote.includes('apparel')) {
+      suggestedCategory = 'Shopping';
+    } else if (lowerNote.includes('book') || lowerNote.includes('course') || lowerNote.includes('tuition') || lowerNote.includes('school')) {
+      suggestedCategory = 'Education';
+    }
+    
+    setCategory(suggestedCategory);
+    setIsCategorising(false);
+  };
 
   const validate = () => {
     const newErrors = {};
@@ -116,7 +148,30 @@ function ExpenseForm({ onAddExpense }) {
 
         {/* Note */}
         <div>
-          <label htmlFor="note" className="block text-sm font-medium text-gray-700">Note</label>
+          <div className="flex justify-between items-center mb-1">
+            <label htmlFor="note" className="block text-sm font-medium text-gray-700">Note</label>
+            <button
+              type="button"
+              onClick={handleMagicCategorise}
+              disabled={isCategorising || !note.trim()}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isCategorising ? (
+                <>
+                  <svg className="animate-spin h-3 w-3 text-indigo-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Thinking...
+                </>
+              ) : (
+                <>
+                  <svg className="w-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                  Magic Categorise
+                </>
+              )}
+            </button>
+          </div>
           <textarea
             id="note"
             rows="2"
