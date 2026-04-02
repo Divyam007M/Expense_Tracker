@@ -3,6 +3,7 @@ import Header from './components/Header';
 import ExpenseForm from './components/ExpenseForm';
 import ExpenseList from './components/ExpenseList';
 import ExpenseSummary from './components/ExpenseSummary';
+import ExpenseChart from './components/ExpenseChart';
 
 function App() {
   const [expenses, setExpenses] = useState(() => {
@@ -37,6 +38,7 @@ function App() {
         <div className="md:col-span-1 space-y-8">
           <ExpenseSummary expenses={expenses} />
           <ExpenseForm onAddExpense={handleAddExpense} />
+          <ExpenseChart expenses={expenses} />
         </div>
         <div className="md:col-span-2">
           <ExpenseList expenses={expenses} onDeleteExpense={handleDeleteExpense} />
