@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useCurrency } from '../context/CurrencyContext';
 
 const CATEGORIES = [
   'Food & Drink',
@@ -12,6 +13,7 @@ const CATEGORIES = [
 ];
 
 function EditExpenseModal({ expense, onSave, onClose }) {
+  const { currencySymbol, convertToBase, convertToDisplay } = useCurrency();
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [date, setDate] = useState('');
@@ -20,7 +22,7 @@ function EditExpenseModal({ expense, onSave, onClose }) {
 
   useEffect(() => {
     if (expense) {
-      setAmount(expense.amount);
+      setAmount(convertToDisplay(expense.amount).toFixed(2));
       setCategory(expense.category);
       setDate(expense.date);
       setNote(expense.note || '');
@@ -54,7 +56,7 @@ function EditExpenseModal({ expense, onSave, onClose }) {
     if (validate()) {
       onSave({
         ...expense,
-        amount: parseFloat(amount),
+        amount: convertToBase(parseFloat(amount)),
         category,
         date,
         note
@@ -84,7 +86,7 @@ function EditExpenseModal({ expense, onSave, onClose }) {
                 <label htmlFor="edit-amount" className="block text-sm font-medium text-gray-700">Amount <span className="text-red-500">*</span></label>
                 <div className="relative mt-1">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <span className="text-gray-500 sm:text-sm">$</span>
+                    <span className="text-gray-500 sm:text-sm">{currencySymbol}</span>
                   </div>
                   <input 
                     type="number" 

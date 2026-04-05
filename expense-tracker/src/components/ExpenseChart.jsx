@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
+import { useCurrency } from '../context/CurrencyContext';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function ExpenseChart({ expenses }) {
+  const { formatAmount } = useCurrency();
   const chartData = useMemo(() => {
     // Group expenses by category
     const categoryTotals = expenses.reduce((acc, expense) => {
@@ -77,7 +79,7 @@ function ExpenseChart({ expenses }) {
                       label += ': ';
                     }
                     if (context.parsed !== null) {
-                      label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed);
+                      label += formatAmount(context.parsed);
                     }
                     return label;
                   }

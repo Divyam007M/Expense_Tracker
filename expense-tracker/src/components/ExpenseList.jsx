@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useCurrency } from '../context/CurrencyContext';
 
 const CATEGORIES = [
   'Food & Drink',
@@ -13,6 +14,7 @@ const CATEGORIES = [
 
 function ExpenseList({ expenses, onDeleteExpense, onEditExpense }) {
   const [filter, setFilter] = useState('All');
+  const { formatAmount } = useCurrency();
   const [copiedId, setCopiedId] = useState(null);
 
   const handleCopy = (id) => {
@@ -85,7 +87,7 @@ function ExpenseList({ expenses, onDeleteExpense, onEditExpense }) {
                     <p className="text-sm font-medium text-gray-900">{expense.date}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-base font-bold text-gray-900">${expense.amount.toFixed(2)}</p>
+                    <p className="text-base font-bold text-gray-900">{formatAmount(expense.amount)}</p>
                   </div>
                 </div>
                 <div className="flex justify-between items-center mt-2">
@@ -156,7 +158,7 @@ function ExpenseList({ expenses, onDeleteExpense, onEditExpense }) {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 max-w-[200px] truncate">{expense.note || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${expense.amount.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formatAmount(expense.amount)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         <button
