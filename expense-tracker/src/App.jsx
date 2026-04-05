@@ -6,6 +6,7 @@ import ExpenseSummary from './components/ExpenseSummary';
 import ExpenseChart from './components/ExpenseChart';
 import DateFilter from './components/DateFilter';
 import EditExpenseModal from './components/EditExpenseModal';
+import BudgetAdvisor from './components/BudgetAdvisor';
 import { v4 as uuidv4 } from 'uuid';
 
 function App() {
@@ -126,6 +127,7 @@ function App() {
             onDeleteExpense={handleDeleteExpense} 
             onEditExpense={(expense) => setEditingExpense(expense)}
           />
+          <BudgetAdvisor expenses={filteredExpenses} />
         </div>
       </main>
       
