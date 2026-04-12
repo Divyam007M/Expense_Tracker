@@ -1,6 +1,22 @@
 import React, { useState } from 'react';
 import { useCurrency } from '../context/CurrencyContext';
 
+const CURRENCY_SYMBOLS = {
+  INR: '₹',
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  JPY: '¥'
+};
+
+const CURRENCY_RATES = {
+  INR: 1,
+  USD: 0.012,
+  EUR: 0.011,
+  GBP: 0.0095,
+  JPY: 1.8
+};
+
 const CATEGORIES = [
   'Food & Drink',
   'Transport',
@@ -13,8 +29,9 @@ const CATEGORIES = [
 ];
 
 function ExpenseForm({ onAddExpense }) {
-  const { currencySymbol, convertToBase } = useCurrency();
+  const { currencies } = useCurrency() || { currencies: Object.keys(CURRENCY_SYMBOLS) };
   const [amount, setAmount] = useState('');
+  const [selectedCurrency, setSelectedCurrency] = useState('INR');
   const [category, setCategory] = useState('');
   const [date, setDate] = useState('');
   const [note, setNote] = useState('');
@@ -76,8 +93,14 @@ function ExpenseForm({ onAddExpense }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
+      const parsedAmount = parseFloat(amount);
+      const rate = CURRENCY_RATES[selectedCurrency] || 1;
+      const baseAmount = parsedAmount / rate;
+
       const expenseData = {
-        amount: convertToBase(parseFloat(amount)),
+        amount: baseAmount,
+        originalAmount: parsedAmount,
+        currency: selectedCurrency,
         category,
         date,
         note
@@ -101,17 +124,23 @@ function ExpenseForm({ onAddExpense }) {
         {/* Amount */}
         <div>
           <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount <span className="text-red-500">*</span></label>
-          <div className="relative mt-1">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <span className="text-gray-500 sm:text-sm">{currencySymbol}</span>
-            </div>
+          <div className="relative mt-1 flex rounded-md shadow-sm">
+            <select
+              value={selectedCurrency}
+              onChange={(e) => setSelectedCurrency(e.target.value)}
+              className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-700 sm:text-sm focus:ring-blue-500 focus:border-blue-500 outline-none"
+            >
+              {(currencies || Object.keys(CURRENCY_SYMBOLS)).map(cur => (
+                <option key={cur} value={cur}>{cur}</option>
+              ))}
+            </select>
             <input 
               type="number" 
               step="0.01"
               id="amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className={`block w-full rounded-md border pl-7 pr-3 focus:ring-blue-500 sm:text-sm px-4 py-2 shadow-sm ${errors.amount ? 'border-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500 bg-white'}`} 
+              className={`block w-full rounded-none rounded-r-md border pl-3 pr-3 focus:ring-blue-500 sm:text-sm px-4 py-2 ${errors.amount ? 'border-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500 bg-white'}`} 
               placeholder="0.00" 
             />
           </div>
