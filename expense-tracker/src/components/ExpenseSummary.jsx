@@ -1,61 +1,117 @@
 import React, { useState, useEffect } from 'react';
 import { useCurrency } from '../context/CurrencyContext';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabaseClient';
+import toast from 'react-hot-toast';
 
 function ExpenseSummary({ expenses }) {
-  const { formatAmount } = useCurrency();
-  const total = (expenses || []).reduce((sum, expense) => sum + expense.amount, 0);
+  const { formatAmount, currencySymbol } = useCurrency();
+  const { user, setShowAuthModal } = useAuth();
+  // Guard each expense.amount against NaN/null before summing
+  const total = (expenses || []).reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
 
-  const [monthlyBudget, setMonthlyBudget] = useState(() => {
-    const saved = localStorage.getItem('monthlyBudget');
-    return saved ? parseFloat(saved) : 0;
-  });
-  const [budgetInput, setBudgetInput] = useState(monthlyBudget.toString());
+  const [monthlyBudget, setMonthlyBudget] = useState(0);
+  const [budgetInput, setBudgetInput] = useState('0');
   const [isEditingBudget, setIsEditingBudget] = useState(false);
 
-  const [monthlyIncome, setMonthlyIncome] = useState(() => {
-    const saved = localStorage.getItem('monthlyIncome');
-    return saved ? parseFloat(saved) : 0;
-  });
-  const [incomeInput, setIncomeInput] = useState(monthlyIncome.toString());
-  const [spendingRule, setSpendingRule] = useState(() => {
-    const saved = localStorage.getItem('spendingRule');
-    return saved ? parseInt(saved) : 100;
-  });
+  const [monthlyIncome, setMonthlyIncome] = useState(0);
+  const [incomeInput, setIncomeInput] = useState('0');
+  const [spendingRule, setSpendingRule] = useState(100);
   const [isEditingIncome, setIsEditingIncome] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem('monthlyBudget', monthlyBudget.toString());
-  }, [monthlyBudget]);
+  const [loadingInitial, setLoadingInitial] = useState(true);
 
+  // Fetch initial budget and income from Supabase
   useEffect(() => {
-    localStorage.setItem('monthlyIncome', monthlyIncome.toString());
-  }, [monthlyIncome]);
+    const fetchFinancialData = async () => {
+      if (!user) return;
+      
+      try {
+        setLoadingInitial(true);
+        // Fetch budget
+        const { data: budgetData } = await supabase
+          .from('budgets')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
 
-  useEffect(() => {
-    localStorage.setItem('spendingRule', spendingRule.toString());
-  }, [spendingRule]);
+        if (budgetData) {
+          setMonthlyBudget(parseFloat(budgetData.monthly_limit));
+          setBudgetInput(budgetData.monthly_limit.toString());
+        }
 
+        // Fetch income
+        const { data: incomeData } = await supabase
+          .from('income')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (incomeData) {
+          setMonthlyIncome(parseFloat(incomeData.amount));
+          setIncomeInput(incomeData.amount.toString());
+          setSpendingRule(incomeData.spending_rule || 100);
+        }
+      } catch (err) {
+        console.error("Error fetching financial data from Supabase:", err);
+      } finally {
+        setLoadingInitial(false);
+      }
+    };
+
+    fetchFinancialData();
+  }, [user]);
+
+  // Use string-based comparison (YYYY-MM) to avoid timezone issues with new Date()
+  const currentYearMonth = new Date().toISOString().slice(0, 7); // e.g. "2026-04"
   const currentMonthExpenses = (expenses || []).filter(expense => {
-    const expenseDate = new Date(expense.date);
-    const now = new Date();
-    return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
-  }).reduce((sum, expense) => sum + expense.amount, 0);
+    return typeof expense.date === 'string' && expense.date.startsWith(currentYearMonth);
+  }).reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
 
-  const handleSaveBudget = () => {
+  const handleSaveBudget = async () => {
+    if (!user) {
+      toast('Login to save your budget permanently', { icon: '🔒' });
+      setShowAuthModal(true);
+      return;
+    }
     const newBudget = parseFloat(budgetInput);
     if (!isNaN(newBudget) && newBudget >= 0) {
       setMonthlyBudget(newBudget);
+      setIsEditingBudget(false);
+      
+      const { error } = await supabase
+        .from('budgets')
+        .insert([{ user_id: user.id, monthly_limit: newBudget }]);
+        
+      if (error) console.error("Error saving budget:", error);
+      else toast.success("Budget saved securely!");
     }
-    setIsEditingBudget(false);
   };
 
-  const handleSaveIncome = () => {
+  const handleSaveIncome = async () => {
+    if (!user) {
+      toast('Login to save your income permanently', { icon: '🔒' });
+      setShowAuthModal(true);
+      return;
+    }
     const newIncome = parseFloat(incomeInput);
     if (!isNaN(newIncome) && newIncome >= 0) {
       setMonthlyIncome(newIncome);
+      setIsEditingIncome(false);
+      
+      const { error } = await supabase
+        .from('income')
+        .insert([{ user_id: user.id, amount: newIncome, spending_rule: spendingRule }]);
+        
+      if (error) console.error("Error saving income:", error);
+      else toast.success("Income details saved securely!");
     }
-    setIsEditingIncome(false);
   };
+
 
   const allowedFromIncome = monthlyIncome > 0 ? monthlyIncome * (spendingRule / 100) : 0;
   
@@ -74,7 +130,13 @@ function ExpenseSummary({ expenses }) {
   const isNearing = effectiveLimit > 0 && currentMonthExpenses > effectiveLimit * 0.8 && !isExceeded;
 
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg rounded-xl p-6 text-white border border-blue-500 flex flex-col gap-5">
+    <div className="bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg rounded-xl p-6 text-white border border-blue-500 flex flex-col gap-5 relative">
+      {loadingInitial && (
+        <div className="absolute inset-0 bg-blue-900/20 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+        </div>
+      )}
+      
       <div>
         <h2 className="text-sm font-medium text-blue-100 uppercase tracking-wider mb-2">Total Balance</h2>
         <div className="text-4xl font-extrabold tracking-tight">
@@ -86,11 +148,11 @@ function ExpenseSummary({ expenses }) {
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-sm font-semibold text-blue-100 uppercase tracking-wide">Monthly Budget</h3>
           {!isEditingBudget ? (
-            <button onClick={() => setIsEditingBudget(true)} className="text-xs bg-white/20 hover:bg-white/30 transition-colors px-2 py-1 rounded text-white">
+            <button onClick={() => setIsEditingBudget(true)} className="text-xs bg-white/20 hover:bg-white/30 transition-colors px-2 py-1 rounded text-white cursor-pointer relative z-20">
               Edit
             </button>
           ) : (
-            <button onClick={handleSaveBudget} className="text-xs bg-green-500 hover:bg-green-600 transition-colors px-2 py-1 rounded text-white">
+            <button onClick={handleSaveBudget} className="text-xs bg-green-500 hover:bg-green-600 transition-colors px-2 py-1 rounded text-white cursor-pointer relative z-20">
               Save Budget
             </button>
           )}
@@ -133,11 +195,11 @@ function ExpenseSummary({ expenses }) {
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-sm font-semibold text-blue-100 uppercase tracking-wide">Monthly Income</h3>
           {!isEditingIncome ? (
-            <button onClick={() => setIsEditingIncome(true)} className="text-xs bg-white/20 hover:bg-white/30 transition-colors px-2 py-1 rounded text-white">
+            <button onClick={() => setIsEditingIncome(true)} className="text-xs bg-white/20 hover:bg-white/30 transition-colors px-2 py-1 rounded text-white cursor-pointer relative z-20">
               Edit
             </button>
           ) : (
-            <button onClick={handleSaveIncome} className="text-xs bg-green-500 hover:bg-green-600 transition-colors px-2 py-1 rounded text-white">
+            <button onClick={handleSaveIncome} className="text-xs bg-green-500 hover:bg-green-600 transition-colors px-2 py-1 rounded text-white cursor-pointer relative z-20">
               Save Income
             </button>
           )}

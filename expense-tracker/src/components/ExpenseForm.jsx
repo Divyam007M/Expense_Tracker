@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import { useCurrency } from '../context/CurrencyContext';
+import { parseInvoiceWithGroq } from '../lib/groqService';
+import toast from 'react-hot-toast';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Setup pdf worker for pdf.js via unpkg/cdnjs (or local standard wrapper)
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 const CURRENCY_SYMBOLS = {
   INR: '₹',
@@ -29,15 +35,119 @@ const CATEGORIES = [
 ];
 
 function ExpenseForm({ onAddExpense }) {
-  const { currencies } = useCurrency() || { currencies: Object.keys(CURRENCY_SYMBOLS) };
+  const { currencies, selectedCurrency: dominantCurrency } = useCurrency() || { currencies: Object.keys(CURRENCY_SYMBOLS), selectedCurrency: 'INR' };
   const [amount, setAmount] = useState('');
-  const [selectedCurrency, setSelectedCurrency] = useState('INR');
+  const [selectedCurrency, setSelectedCurrency] = useState(dominantCurrency || 'INR');
   const [category, setCategory] = useState('');
   const [date, setDate] = useState('');
   const [note, setNote] = useState('');
   const [isCategorising, setIsCategorising] = useState(false);
 
   const [errors, setErrors] = useState({});
+
+  React.useEffect(() => {
+    if (dominantCurrency) {
+      setSelectedCurrency(dominantCurrency);
+    }
+  }, [dominantCurrency]);
+
+  const [isUploading, setIsUploading] = useState(false);
+
+  const getBase64FromImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const getBase64FromPdf = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 1.5 });
+    
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    await page.render({ canvasContext: context, viewport: viewport }).promise;
+    return canvas.toDataURL('image/jpeg', 0.8);
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('File size exceeds 20MB limit.');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      let base64Data = '';
+      if (file.type === 'application/pdf') {
+        base64Data = await getBase64FromPdf(file);
+      } else if (file.type.startsWith('image/')) {
+        base64Data = await getBase64FromImage(file);
+      } else {
+        toast.error('Only images and PDFs are allowed.');
+        return;
+      }
+
+      toast.loading('Analyzing invoice...', { id: 'ocr' });
+      const extractedData = await parseInvoiceWithGroq(base64Data);
+
+      // --- Validate and normalize amount ---
+      const parsedAmount = parseFloat(extractedData.amount);
+      if (!parsedAmount || isNaN(parsedAmount) || parsedAmount <= 0) {
+        toast.error('Could not detect a valid total amount from the invoice.', { id: 'ocr' });
+        return;
+      }
+
+      // --- Validate and normalize currency (fallback to dominant) ---
+      const VALID_CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'JPY'];
+      const parsedCurrency = (extractedData.currency && VALID_CURRENCIES.includes(extractedData.currency.toUpperCase()))
+        ? extractedData.currency.toUpperCase()
+        : (dominantCurrency || 'INR');
+
+      // --- Normalize date to YYYY-MM-DD ---
+      let parsedDate = new Date().toISOString().split('T')[0]; // default to today
+      if (extractedData.date) {
+        // Try parsing, then format to YYYY-MM-DD
+        const attempt = new Date(extractedData.date);
+        if (!isNaN(attempt.getTime())) {
+          parsedDate = attempt.toISOString().split('T')[0];
+        }
+      }
+
+      const rate = CURRENCY_RATES[parsedCurrency] || 1;
+      const baseAmount = parsedAmount / rate;
+
+      const expenseData = {
+        amount: baseAmount,
+        originalAmount: parsedAmount,
+        currency: parsedCurrency,
+        category: extractedData.category || 'Other',
+        date: parsedDate,
+        note: extractedData.note || 'Invoice Upload'
+      };
+
+      onAddExpense(expenseData);
+      toast.success(`Invoice added: ${parsedCurrency} ${parsedAmount.toFixed(2)} from ${expenseData.note}`, { id: 'ocr' });
+      
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || 'Failed to process invoice.', { id: 'ocr' });
+    } finally {
+      setIsUploading(false);
+      // reset file input
+      e.target.value = null;
+    }
+  };
 
   const handleMagicCategorise = async () => {
     if (!note.trim()) return;
@@ -114,6 +224,7 @@ function ExpenseForm({ onAddExpense }) {
       setDate('');
       setNote('');
       setErrors({});
+      setSelectedCurrency(dominantCurrency || 'INR');
     }
   };
 
@@ -215,11 +326,34 @@ function ExpenseForm({ onAddExpense }) {
 
         <button 
           type="submit" 
-          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-2 transition-colors"
+          disabled={isUploading}
+          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-2 transition-colors disabled:opacity-50"
         >
           Add Expense
         </button>
       </form>
+
+      <div className="mt-4 pt-4 border-t border-gray-100">
+        <label className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-blue-200 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+          {isUploading ? (
+            <svg className="animate-spin h-4 w-4 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          )}
+          {isUploading ? 'Analyzing Invoice...' : 'Upload AI Invoice'}
+          <input 
+            type="file" 
+            accept="image/*,application/pdf" 
+            onChange={handleFileUpload} 
+            disabled={isUploading}
+            className="sr-only" 
+          />
+        </label>
+        <p className="text-center text-xs text-gray-400 mt-2">Max 20MB. Supports Images & PDF.</p>
+      </div>
     </div>
   );
 }

@@ -11,14 +11,7 @@ const SUPPORTED_CURRENCIES = {
 };
 
 export const CurrencyProvider = ({ children }) => {
-  const [selectedCurrency, setSelectedCurrency] = useState(() => {
-    const saved = localStorage.getItem('selectedCurrency');
-    return saved && SUPPORTED_CURRENCIES[saved] ? saved : 'INR';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('selectedCurrency', selectedCurrency);
-  }, [selectedCurrency]);
+  const [selectedCurrency, setSelectedCurrency] = useState('INR');
 
   const currencySymbol = SUPPORTED_CURRENCIES[selectedCurrency].symbol;
   const currentRate = SUPPORTED_CURRENCIES[selectedCurrency].rate;
@@ -40,6 +33,16 @@ export const CurrencyProvider = ({ children }) => {
     return displayAmount / currentRate;
   };
 
+  const formatOriginalAmount = (baseAmount, originalCurrency) => {
+    const originalRate = SUPPORTED_CURRENCIES[originalCurrency]?.rate || 1;
+    const originalSymbol = SUPPORTED_CURRENCIES[originalCurrency]?.symbol || '';
+    const converted = baseAmount * originalRate;
+    return `${originalSymbol}${converted.toFixed(2)}`;
+  };
+
+  const getRate = (currency) => SUPPORTED_CURRENCIES[currency]?.rate || 1;
+  const getSymbol = (currency) => SUPPORTED_CURRENCIES[currency]?.symbol || '';
+
   return (
     <CurrencyContext.Provider 
       value={{ 
@@ -49,7 +52,10 @@ export const CurrencyProvider = ({ children }) => {
         currencies,
         formatAmount,
         convertToDisplay,
-        convertToBase
+        convertToBase,
+        formatOriginalAmount,
+        getRate,
+        getSymbol
       }}
     >
       {children}

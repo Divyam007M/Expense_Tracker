@@ -1,0 +1,187 @@
+﻿
+> expense-tracker@0.1.0 build
+> npx vite build
+
+node.exe : [2m12:49:59 
+PM[22m 
+[33m[1m[vite][22m[39m 
+[33mwarning: `esbuild` 
+option was specified by 
+"vite:react-babel" 
+plugin. This option is 
+deprecated, please use 
+`oxc` instead.[39m
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (  
+  [2m12:49:59 PM...` in   
+ stead.[39m:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+`optimizeDeps.rollupOption
+s` / `ssr.optimizeDeps.rol
+lupOptions` is 
+deprecated. Use `optimizeD
+eps.rolldownOptions` 
+instead. Note that this 
+option may be set by a 
+plugin. Set 
+VITE_DEPRECATION_TRACE=1 
+to see where it is called.
+[vite:react-babel] We 
+recommend switching to `@v
+itejs/plugin-react-oxc` 
+for improved performance. 
+More information at 
+https://vite.dev/rolldown
+[36mvite v8.0.3 [32mbuilding client environment for production...[36m[39m
+[2K
+transforming...Γ£ô 1806 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.42 kB Γöé gzip:   0.28 kB
+dist/assets/index-B8-gSes8.css   24.11 kB Γöé gzip:   5.32 kB
+dist/assets/index-CiyLMZd_.js   580.96 kB Γöé gzip: 177.05 kB
+
+[33m[plugin 
+builtin:vite-reporter] 
+(!) Some chunks are 
+larger than 500 kB after 
+minification. Consider:
+- Using dynamic import() 
+to code-split the 
+application
+- Use build.rolldownOption
+s.output.codeSplitting to 
+improve chunking: https://
+rolldown.rs/reference/Outp
+utOptions.codeSplitting
+- Adjust chunk size limit 
+for this warning via build
+.chunkSizeWarningLimit.[3
+9m
+[31mΓ£ù[39m Build 
+failed in 1.71s
+[31merror during build:
+[31mBuild failed with 1 
+error:
+
+Error: [vite]: Rolldown 
+failed to resolve import 
+"react-hot-toast" from "C:
+/Users/Div/Desktop/ANTIGRA
+VITY/expense-tracker/src/A
+pp.jsx".
+This is most likely 
+unintended because it can 
+break your application at 
+runtime.
+If you do want to 
+externalize this module 
+explicitly add it to
+`build.rollupOptions.exter
+nal`
+    at viteLog (file:///C:
+/Users/Div/Desktop/ANTIGRA
+VITY/expense-tracker/node_
+modules/vite/dist/node/chu
+nks/node.js:32942:57)
+    at file:///C:/Users/Di
+v/Desktop/ANTIGRAVITY/expe
+nse-tracker/node_modules/v
+ite/dist/node/chunks/node.
+js:32978:71
+    at onwarn (file:///C:/
+Users/Div/Desktop/ANTIGRAV
+ITY/expense-tracker/node_m
+odules/@vitejs/plugin-reac
+t/dist/index.js:90:7)
+    at file:///C:/Users/Di
+v/Desktop/ANTIGRAVITY/expe
+nse-tracker/node_modules/v
+ite/dist/node/chunks/node.
+js:32978:28
+    at onRollupLog (file:/
+//C:/Users/Div/Desktop/ANT
+IGRAVITY/expense-tracker/n
+ode_modules/vite/dist/node
+/chunks/node.js:32973:63)
+    at onLog (file:///C:/U
+sers/Div/Desktop/ANTIGRAVI
+TY/expense-tracker/node_mo
+dules/vite/dist/node/chunk
+s/node.js:32743:4)
+    at file:///C:/Users/Di
+v/Desktop/ANTIGRAVITY/expe
+nse-tracker/node_modules/r
+olldown/dist/shared/rolldo
+wn-build-CPrIX9V6.mjs:49:2
+6
+    at logger (file:///C:/
+Users/Div/Desktop/ANTIGRAV
+ITY/expense-tracker/node_m
+odules/rolldown/dist/share
+d/rolldown-build-CPrIX9V6.
+mjs:40:3)
+    at onLog (file:///C:/U
+sers/Div/Desktop/ANTIGRAVI
+TY/expense-tracker/node_mo
+dules/rolldown/dist/shared
+/bindingify-input-options-
+e7ze4hPR.mjs:1972:32)[31m
+    at aggregateBindingErr
+orsIntoJsError (file:///C:
+/Users/Div/Desktop/ANTIGRA
+VITY/expense-tracker/node_
+modules/rolldown/dist/shar
+ed/error-BLhcSyeg.mjs:48:1
+8)
+    at 
+unwrapBindingResult (file:
+///C:/Users/Div/Desktop/AN
+TIGRAVITY/expense-tracker/
+node_modules/rolldown/dist
+/shared/error-BLhcSyeg.mjs
+:18:128)
+    at #build (file:///C:/
+Users/Div/Desktop/ANTIGRAV
+ITY/expense-tracker/node_m
+odules/rolldown/dist/share
+d/rolldown-build-CPrIX9V6.
+mjs:3313:34)
+    at async 
+buildEnvironment (file:///
+C:/Users/Div/Desktop/ANTIG
+RAVITY/expense-tracker/nod
+e_modules/vite/dist/node/c
+hunks/node.js:32849:64)
+    at async Object.build 
+(file:///C:/Users/Div/Desk
+top/ANTIGRAVITY/expense-tr
+acker/node_modules/vite/di
+st/node/chunks/node.js:332
+71:19)
+    at async 
+Object.buildApp (file:///C
+:/Users/Div/Desktop/ANTIGR
+AVITY/expense-tracker/node
+_modules/vite/dist/node/ch
+unks/node.js:33268:153)
+    at async 
+CAC.<anonymous> (file:///C
+:/Users/Div/Desktop/ANTIGR
+AVITY/expense-tracker/node
+_modules/vite/dist/node/cl
+i.js:778:3) {
+  errors: [Getter/Setter]
+}[39m

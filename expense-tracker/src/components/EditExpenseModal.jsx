@@ -13,7 +13,7 @@ const CATEGORIES = [
 ];
 
 function EditExpenseModal({ expense, onSave, onClose }) {
-  const { currencySymbol, convertToBase, convertToDisplay } = useCurrency();
+  const { getRate, getSymbol } = useCurrency();
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [date, setDate] = useState('');
@@ -22,7 +22,8 @@ function EditExpenseModal({ expense, onSave, onClose }) {
 
   useEffect(() => {
     if (expense) {
-      setAmount(convertToDisplay(expense.amount).toFixed(2));
+      const originalRate = getRate(expense.currency || 'INR');
+      setAmount((expense.amount * originalRate).toFixed(2));
       setCategory(expense.category);
       setDate(expense.date);
       setNote(expense.note || '');
@@ -54,9 +55,10 @@ function EditExpenseModal({ expense, onSave, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
+      const originalRate = getRate(expense.currency || 'INR');
       onSave({
         ...expense,
-        amount: convertToBase(parseFloat(amount)),
+        amount: parseFloat(amount) / originalRate,
         category,
         date,
         note
@@ -86,7 +88,7 @@ function EditExpenseModal({ expense, onSave, onClose }) {
                 <label htmlFor="edit-amount" className="block text-sm font-medium text-gray-700">Amount <span className="text-red-500">*</span></label>
                 <div className="relative mt-1">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <span className="text-gray-500 sm:text-sm">{currencySymbol}</span>
+                    <span className="text-gray-500 sm:text-sm">{getSymbol(expense?.currency || 'INR')}</span>
                   </div>
                   <input 
                     type="number" 

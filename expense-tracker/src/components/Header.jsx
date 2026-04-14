@@ -1,28 +1,50 @@
 import React from 'react';
 import { useCurrency } from '../context/CurrencyContext';
+import { useAuth } from '../context/AuthContext';
+import ProfileDropdown from './ProfileDropdown';
 
 function Header() {
   const { selectedCurrency, setSelectedCurrency, currencies } = useCurrency();
+  const { user, setShowAuthModal } = useAuth();
 
   return (
-    <header className="bg-white shadow">
-      <div className="max-w-5xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight text-blue-900">
-          Expense Tracker
-        </h1>
-        <div className="flex items-center gap-2">
-          <label htmlFor="currency-selector" className="text-sm font-medium text-gray-600 hidden sm:block">Currency:</label>
-          <select 
-            id="currency-selector"
-            value={selectedCurrency}
-            onChange={(e) => setSelectedCurrency(e.target.value)}
-            className="block rounded-md border-gray-300 py-1.5 pl-3 pr-8 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 shadow-sm border bg-gray-50"
-          >
-            {currencies.map(curr => (
-              <option key={curr} value={curr}>{curr}</option>
-            ))}
-          </select>
+    <header className="bg-white shadow relative z-20">
+      <div className="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8 grid grid-cols-3 items-center">
+        
+        {/* Left: Auth Controls */}
+        <div className="flex items-center justify-start">
+          {!user ? (
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowAuthModal('login')}
+                className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg"
+              >
+                Log In
+              </button>
+              <button 
+                onClick={() => setShowAuthModal('signup')}
+                className="text-sm font-semibold text-white transition-colors bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg shadow-sm"
+              >
+                Sign Up
+              </button>
+            </div>
+          ) : (
+            <ProfileDropdown />
+          )}
         </div>
+
+        {/* Center: Title */}
+        <div className="flex justify-center text-center">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-blue-900 drop-shadow-sm">
+            Expense Tracker
+          </h1>
+        </div>
+
+        {/* Right: Currency Removed */}
+        <div className="flex items-center justify-end gap-2 text-sm font-medium text-indigo-600 hidden sm:block">
+          {/* We can leave this empty or place something here later if needed */}
+        </div>
+
       </div>
     </header>
   );
