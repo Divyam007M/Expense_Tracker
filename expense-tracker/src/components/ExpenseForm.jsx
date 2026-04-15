@@ -67,7 +67,7 @@ function ExpenseForm({ onAddExpense }) {
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     const page = await pdf.getPage(1);
     const viewport = page.getViewport({ scale: 1.5 });
-    
+
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.height = viewport.height;
@@ -138,7 +138,7 @@ function ExpenseForm({ onAddExpense }) {
 
       onAddExpense(expenseData);
       toast.success(`Invoice added: ${parsedCurrency} ${parsedAmount.toFixed(2)} from ${expenseData.note}`, { id: 'ocr' });
-      
+
     } catch (err) {
       console.error(err);
       toast.error(err.message || 'Failed to process invoice.', { id: 'ocr' });
@@ -151,15 +151,15 @@ function ExpenseForm({ onAddExpense }) {
 
   const handleMagicCategorise = async () => {
     if (!note.trim()) return;
-    
+
     setIsCategorising(true);
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     const lowerNote = note.toLowerCase();
     let suggestedCategory = 'Other';
-    
+
     if (lowerNote.includes('burger') || lowerNote.includes('food') || lowerNote.includes('lunch') || lowerNote.includes('dinner') || lowerNote.includes('coffee') || lowerNote.includes('grocery') || lowerNote.includes('restaurant')) {
       suggestedCategory = 'Food & Drink';
     } else if (lowerNote.includes('uber') || lowerNote.includes('taxi') || lowerNote.includes('bus') || lowerNote.includes('train') || lowerNote.includes('gas') || lowerNote.includes('flight') || lowerNote.includes('lyft') || lowerNote.includes('fuel')) {
@@ -175,7 +175,7 @@ function ExpenseForm({ onAddExpense }) {
     } else if (lowerNote.includes('book') || lowerNote.includes('course') || lowerNote.includes('tuition') || lowerNote.includes('school')) {
       suggestedCategory = 'Education';
     }
-    
+
     setCategory(suggestedCategory);
     setIsCategorising(false);
   };
@@ -215,9 +215,9 @@ function ExpenseForm({ onAddExpense }) {
         date,
         note
       };
-      
+
       onAddExpense(expenseData);
-      
+
       // Clear form
       setAmount('');
       setCategory('');
@@ -245,14 +245,14 @@ function ExpenseForm({ onAddExpense }) {
                 <option key={cur} value={cur}>{cur}</option>
               ))}
             </select>
-            <input 
-              type="number" 
+            <input
+              type="number"
               step="0.01"
               id="amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className={`block w-full rounded-none rounded-r-md border pl-3 pr-3 focus:ring-blue-500 sm:text-sm px-4 py-2 dark:text-gray-100 ${errors.amount ? 'border-red-500 focus:border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 focus:border-blue-500 bg-white dark:bg-gray-800'}`} 
-              placeholder="0.00" 
+              className={`block w-full rounded-none rounded-r-md border pl-3 pr-3 focus:ring-blue-500 sm:text-sm px-4 py-2 dark:text-gray-100 ${errors.amount ? 'border-red-500 focus:border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 focus:border-blue-500 bg-white dark:bg-gray-800'}`}
+              placeholder="0.00"
             />
           </div>
           {errors.amount && <p className="mt-1 text-sm text-red-600">{errors.amount}</p>}
@@ -324,8 +324,8 @@ function ExpenseForm({ onAddExpense }) {
           />
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={isUploading}
           className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-2 transition-colors disabled:opacity-50"
         >
@@ -343,13 +343,13 @@ function ExpenseForm({ onAddExpense }) {
           ) : (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
           )}
-          {isUploading ? 'Analyzing Invoice...' : 'Upload AI Invoice'}
-          <input 
-            type="file" 
-            accept="image/*,application/pdf" 
-            onChange={handleFileUpload} 
+          {isUploading ? 'Analyzing Invoice...' : 'Upload Invoice'}
+          <input
+            type="file"
+            accept="image/*,application/pdf"
+            onChange={handleFileUpload}
             disabled={isUploading}
-            className="sr-only" 
+            className="sr-only"
           />
         </label>
         <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-2">Max 20MB. Supports Images & PDF.</p>

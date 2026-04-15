@@ -19,12 +19,16 @@ function ExpenseSummary({ expenses }) {
   const [spendingRule, setSpendingRule] = useState(100);
   const [isEditingIncome, setIsEditingIncome] = useState(false);
 
-  const [loadingInitial, setLoadingInitial] = useState(true);
+  const [loadingInitial, setLoadingInitial] = useState(false);
 
   // Fetch initial budget and income from Supabase
   useEffect(() => {
     const fetchFinancialData = async () => {
-      if (!user) return;
+      if (!user) {
+        // Not authenticated — no fetch needed, ensure spinner is off
+        setLoadingInitial(false);
+        return;
+      }
       
       try {
         setLoadingInitial(true);
@@ -131,7 +135,8 @@ function ExpenseSummary({ expenses }) {
 
   return (
     <div className="bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg rounded-xl p-6 text-white border border-blue-500 flex flex-col gap-5 relative">
-      {loadingInitial && (
+      {/* Show spinner only when authenticated AND data is still loading */}
+      {user && loadingInitial && (
         <div className="absolute inset-0 bg-blue-900/20 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
         </div>
