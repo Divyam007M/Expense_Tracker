@@ -8,7 +8,8 @@ function ExpenseSummary({ expenses }) {
   const { formatAmount, currencySymbol } = useCurrency();
   const { user, setShowAuthModal } = useAuth();
   // Guard each expense.amount against NaN/null before summing
-  const total = (expenses || []).reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
+  // totalSpent = sum of all expenses passed in (already filtered by App.jsx's date/month filter)
+  const totalSpent = (expenses || []).reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
 
   const [monthlyBudget, setMonthlyBudget] = useState(0);
   const [budgetInput, setBudgetInput] = useState('0');
@@ -29,7 +30,7 @@ function ExpenseSummary({ expenses }) {
         setLoadingInitial(false);
         return;
       }
-      
+
       try {
         setLoadingInitial(true);
         // Fetch budget
@@ -70,11 +71,7 @@ function ExpenseSummary({ expenses }) {
     fetchFinancialData();
   }, [user]);
 
-  // Use string-based comparison (YYYY-MM) to avoid timezone issues with new Date()
-  const currentYearMonth = new Date().toISOString().slice(0, 7); // e.g. "2026-04"
-  const currentMonthExpenses = (expenses || []).filter(expense => {
-    return typeof expense.date === 'string' && expense.date.startsWith(currentYearMonth);
-  }).reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
+  // No need to re-filter here — expenses prop is already filtered by App.jsx's date/month filter.
 
   const handleSaveBudget = async () => {
     if (!user) {
@@ -86,11 +83,11 @@ function ExpenseSummary({ expenses }) {
     if (!isNaN(newBudget) && newBudget >= 0) {
       setMonthlyBudget(newBudget);
       setIsEditingBudget(false);
-      
+
       const { error } = await supabase
         .from('budgets')
         .insert([{ user_id: user.id, monthly_limit: newBudget }]);
-        
+
       if (error) console.error("Error saving budget:", error);
       else toast.success("Budget saved securely!");
     }
@@ -106,11 +103,11 @@ function ExpenseSummary({ expenses }) {
     if (!isNaN(newIncome) && newIncome >= 0) {
       setMonthlyIncome(newIncome);
       setIsEditingIncome(false);
-      
+
       const { error } = await supabase
         .from('income')
         .insert([{ user_id: user.id, amount: newIncome, spending_rule: spendingRule }]);
-        
+
       if (error) console.error("Error saving income:", error);
       else toast.success("Income details saved securely!");
     }
@@ -118,7 +115,7 @@ function ExpenseSummary({ expenses }) {
 
 
   const allowedFromIncome = monthlyIncome > 0 ? monthlyIncome * (spendingRule / 100) : 0;
-  
+
   let effectiveLimit = 0;
   if (monthlyBudget > 0 && allowedFromIncome > 0) {
     effectiveLimit = Math.min(monthlyBudget, allowedFromIncome);
@@ -128,10 +125,10 @@ function ExpenseSummary({ expenses }) {
     effectiveLimit = allowedFromIncome;
   }
 
-  const percentageUsed = effectiveLimit > 0 ? Math.min((currentMonthExpenses / effectiveLimit) * 100, 100) : 0;
-  const remainingBudget = monthlyBudget > 0 ? monthlyBudget - currentMonthExpenses : 0;
-  const isExceeded = effectiveLimit > 0 && currentMonthExpenses > effectiveLimit;
-  const isNearing = effectiveLimit > 0 && currentMonthExpenses > effectiveLimit * 0.8 && !isExceeded;
+  const percentageUsed = effectiveLimit > 0 ? Math.min((totalSpent / effectiveLimit) * 100, 100) : 0;
+  const remainingBudget = monthlyBudget > 0 ? monthlyBudget - totalSpent : 0;
+  const isExceeded = effectiveLimit > 0 && totalSpent > effectiveLimit;
+  const isNearing = effectiveLimit > 0 && totalSpent > effectiveLimit * 0.8 && !isExceeded;
 
   return (
     <div className="bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg rounded-xl p-6 text-white border border-blue-500 flex flex-col gap-5 relative">
@@ -141,11 +138,11 @@ function ExpenseSummary({ expenses }) {
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
         </div>
       )}
-      
+
       <div>
-        <h2 className="text-sm font-medium text-blue-100 uppercase tracking-wider mb-2">Total Balance</h2>
+        <h2 className="text-sm font-medium text-blue-100 uppercase tracking-wider mb-2">Total Spent</h2>
         <div className="text-4xl font-extrabold tracking-tight">
-          {formatAmount(total)}
+          {formatAmount(totalSpent)}
         </div>
       </div>
 
@@ -165,8 +162,8 @@ function ExpenseSummary({ expenses }) {
 
         {isEditingBudget ? (
           <div className="mb-4 flex gap-2">
-            <input 
-              type="number" 
+            <input
+              type="number"
               value={budgetInput}
               onChange={(e) => setBudgetInput(e.target.value)}
               className="text-gray-900 px-2 py-1 rounded w-full text-sm"
@@ -182,11 +179,11 @@ function ExpenseSummary({ expenses }) {
             </div>
             <div className="flex flex-col">
               <span className="text-blue-200 text-xs">Spent</span>
-              <span className="font-semibold">{formatAmount(currentMonthExpenses)}</span>
+              <span className="font-semibold">{formatAmount(totalSpent)}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-blue-200 text-xs">Remaining</span>
-              <span className={`font-semibold ${currentMonthExpenses > monthlyBudget ? 'text-red-300' : 'text-green-300'}`}>
+              <span className={`font-semibold ${totalSpent > monthlyBudget ? 'text-red-300' : 'text-green-300'}`}>
                 {formatAmount(remainingBudget)}
               </span>
             </div>
@@ -214,8 +211,8 @@ function ExpenseSummary({ expenses }) {
           <div className="mb-4 flex flex-col gap-3">
             <div>
               <label className="text-xs text-blue-200 mb-1 block">Monthly Income</label>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 value={incomeInput}
                 onChange={(e) => setIncomeInput(e.target.value)}
                 className="text-gray-900 px-2 py-1 rounded w-full text-sm"
@@ -224,7 +221,7 @@ function ExpenseSummary({ expenses }) {
             </div>
             <div>
               <label className="text-xs text-blue-200 mb-1 block">Spending Rule</label>
-              <select 
+              <select
                 value={spendingRule}
                 onChange={(e) => setSpendingRule(parseInt(e.target.value))}
                 className="text-gray-900 px-2 py-1 rounded w-full text-sm"
@@ -245,8 +242,8 @@ function ExpenseSummary({ expenses }) {
               <span className="font-semibold">{formatAmount(allowedFromIncome)}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-blue-200 text-xs">Curr. Spend</span>
-              <span className="font-semibold">{formatAmount(currentMonthExpenses)}</span>
+              <span className="text-blue-200 text-xs">Curr. Spent</span>
+              <span className="font-semibold">{formatAmount(totalSpent)}</span>
             </div>
           </div>
         ) : (
@@ -256,8 +253,8 @@ function ExpenseSummary({ expenses }) {
         {effectiveLimit > 0 && !isEditingBudget && !isEditingIncome && (
           <div className="space-y-1 mt-2">
             <div className="w-full bg-blue-900/50 rounded-full h-2.5 overflow-hidden">
-              <div 
-                className={`h-2.5 rounded-full transition-all duration-500 ${isExceeded ? 'bg-red-400' : isNearing ? 'bg-yellow-400' : 'bg-green-400'}`} 
+              <div
+                className={`h-2.5 rounded-full transition-all duration-500 ${isExceeded ? 'bg-red-400' : isNearing ? 'bg-yellow-400' : 'bg-green-400'}`}
                 style={{ width: `${percentageUsed}%` }}
               ></div>
             </div>
