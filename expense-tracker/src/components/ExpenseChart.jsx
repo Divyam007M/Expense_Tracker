@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useCurrency } from '../context/CurrencyContext';
+import { useTheme } from '../context/ThemeContext';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
@@ -7,6 +8,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 function ExpenseChart({ expenses }) {
   const { formatAmount } = useCurrency();
+  const { isDark } = useTheme();
   const chartData = useMemo(() => {
     // Group expenses by category
     const categoryTotals = expenses.reduce((acc, expense) => {
@@ -32,7 +34,7 @@ function ExpenseChart({ expenses }) {
             '#06b6d4', // cyan-500
             '#84cc16'  // lime-500
           ],
-          borderColor: '#ffffff',
+          borderColor: isDark ? '#1f2937' : '#ffffff',
           borderWidth: 2,
           hoverOffset: 4
         },
@@ -52,8 +54,8 @@ function ExpenseChart({ expenses }) {
   }
 
   return (
-    <div className="bg-white shadow rounded-xl p-6 border border-gray-100 flex flex-col items-center">
-      <h2 className="text-xl font-semibold text-gray-800 mb-6 self-start">Expenses by Category</h2>
+    <div className="bg-white dark:bg-gray-900 shadow rounded-xl p-6 border border-gray-100 dark:border-gray-700 flex flex-col items-center">
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6 self-start">Expenses by Category</h2>
       <div className="w-full max-w-[280px]">
         <Pie 
           data={chartData} 
@@ -65,6 +67,7 @@ function ExpenseChart({ expenses }) {
                 labels: {
                   usePointStyle: true,
                   padding: 20,
+                  color: isDark ? '#d1d5db' : '#374151',
                   font: {
                     family: "'Inter', sans-serif",
                     size: 12

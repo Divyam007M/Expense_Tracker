@@ -229,17 +229,17 @@ function ExpenseForm({ onAddExpense }) {
   };
 
   return (
-    <div className="bg-white shadow rounded-xl p-6 border border-gray-100">
-      <h2 className="text-xl font-semibold mb-5 text-gray-800">Add Expense</h2>
+    <div className="bg-white dark:bg-gray-900 shadow rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+      <h2 className="text-xl font-semibold mb-5 text-gray-800 dark:text-gray-100">Add Expense</h2>
       <form onSubmit={handleSubmit} className="space-y-4 text-left">
         {/* Amount */}
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount <span className="text-red-500">*</span></label>
+          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount <span className="text-red-500">*</span></label>
           <div className="relative mt-1 flex rounded-md shadow-sm">
             <select
               value={selectedCurrency}
               onChange={(e) => setSelectedCurrency(e.target.value)}
-              className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-700 sm:text-sm focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-3 sm:text-sm focus:ring-blue-500 focus:border-blue-500 outline-none"
             >
               {(currencies || Object.keys(CURRENCY_SYMBOLS)).map(cur => (
                 <option key={cur} value={cur}>{cur}</option>
@@ -251,7 +251,7 @@ function ExpenseForm({ onAddExpense }) {
               id="amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className={`block w-full rounded-none rounded-r-md border pl-3 pr-3 focus:ring-blue-500 sm:text-sm px-4 py-2 ${errors.amount ? 'border-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500 bg-white'}`} 
+              className={`block w-full rounded-none rounded-r-md border pl-3 pr-3 focus:ring-blue-500 sm:text-sm px-4 py-2 dark:text-gray-100 ${errors.amount ? 'border-red-500 focus:border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 focus:border-blue-500 bg-white dark:bg-gray-800'}`} 
               placeholder="0.00" 
             />
           </div>
@@ -260,12 +260,12 @@ function ExpenseForm({ onAddExpense }) {
 
         {/* Category */}
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category <span className="text-red-500">*</span></label>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category <span className="text-red-500">*</span></label>
           <select
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className={`mt-1 block w-full rounded-md border focus:ring-blue-500 sm:text-sm px-4 py-2 shadow-sm ${errors.category ? 'border-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500 bg-white'}`}
+            className={`mt-1 block w-full rounded-md border focus:ring-blue-500 sm:text-sm px-4 py-2 shadow-sm dark:text-gray-100 ${errors.category ? 'border-red-500 focus:border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 focus:border-blue-500 bg-white dark:bg-gray-800'}`}
           >
             <option value="" disabled>Select a category</option>
             {CATEGORIES.map(cat => (
@@ -277,13 +277,13 @@ function ExpenseForm({ onAddExpense }) {
 
         {/* Date */}
         <div>
-          <label htmlFor="date" className="block text-sm font-medium text-gray-700">Date <span className="text-red-500">*</span></label>
+          <label htmlFor="date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date <span className="text-red-500">*</span></label>
           <input
             type="date"
             id="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className={`mt-1 block w-full rounded-md border focus:ring-blue-500 sm:text-sm px-4 py-2 shadow-sm ${errors.date ? 'border-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500 bg-white'}`}
+            className={`mt-1 block w-full rounded-md border focus:ring-blue-500 sm:text-sm px-4 py-2 shadow-sm dark:text-gray-100 ${errors.date ? 'border-red-500 focus:border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600 focus:border-blue-500 bg-white dark:bg-gray-800'}`}
           />
           {errors.date && <p className="mt-1 text-sm text-red-600">{errors.date}</p>}
         </div>
@@ -291,7 +291,7 @@ function ExpenseForm({ onAddExpense }) {
         {/* Note */}
         <div>
           <div className="flex justify-between items-center mb-1">
-            <label htmlFor="note" className="block text-sm font-medium text-gray-700">Note</label>
+            <label htmlFor="note" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Note</label>
             <button
               type="button"
               onClick={handleMagicCategorise}
@@ -319,7 +319,7 @@ function ExpenseForm({ onAddExpense }) {
             rows="2"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 bg-white"
+            className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 bg-white dark:bg-gray-800 dark:text-gray-100"
             placeholder="Optional notes"
           />
         </div>
@@ -333,8 +333,8 @@ function ExpenseForm({ onAddExpense }) {
         </button>
       </form>
 
-      <div className="mt-4 pt-4 border-t border-gray-100">
-        <label className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-blue-200 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+        <label className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-blue-200 dark:border-blue-800 rounded-md shadow-sm text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
           {isUploading ? (
             <svg className="animate-spin h-4 w-4 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -352,7 +352,7 @@ function ExpenseForm({ onAddExpense }) {
             className="sr-only" 
           />
         </label>
-        <p className="text-center text-xs text-gray-400 mt-2">Max 20MB. Supports Images & PDF.</p>
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-2">Max 20MB. Supports Images & PDF.</p>
       </div>
     </div>
   );

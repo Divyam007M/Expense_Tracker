@@ -4,19 +4,22 @@ import App from './App.jsx'
 import './index.css'
 import { CurrencyProvider } from './context/CurrencyContext.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <AuthProvider>
-        <CurrencyProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </CurrencyProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <CurrencyProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </CurrencyProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   </React.StrictMode>,
 )

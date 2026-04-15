@@ -33,7 +33,7 @@ function ProfileDropdown() {
       {/* Trigger Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-3 bg-white/50 border transition-all rounded-full pl-2 pr-4 py-1.5 shadow-sm group focus:outline-none ${isOpen ? 'border-indigo-300 ring-2 ring-indigo-100 bg-indigo-50/50' : 'border-gray-100 hover:border-indigo-100 hover:bg-gray-50'}`}
+        className={`flex items-center gap-3 bg-white/50 dark:bg-gray-800/50 border transition-all rounded-full pl-2 pr-4 py-1.5 shadow-sm group focus:outline-none ${isOpen ? 'border-indigo-300 ring-2 ring-indigo-100 dark:ring-indigo-900 bg-indigo-50/50 dark:bg-indigo-900/20' : 'border-gray-100 dark:border-gray-700 hover:border-indigo-100 dark:hover:border-indigo-700 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
       >
         {profile?.avatar_url ? (
           <img src={profile.avatar_url} alt="User Avatar" className="w-8 h-8 rounded-full border border-gray-200 object-cover shadow-sm" />
@@ -43,23 +43,23 @@ function ProfileDropdown() {
           </div>
         )}
         <div className="flex flex-col text-left">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-0.5 group-hover:text-indigo-400 transition-colors">Profile</span>
-          <span className="text-sm font-semibold text-gray-800 leading-none truncate max-w-[120px] sm:max-w-[150px]">{profile?.name || 'User'}</span>
+          <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-0.5 group-hover:text-indigo-400 transition-colors">Profile</span>
+          <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-none truncate max-w-[120px] sm:max-w-[150px]">{profile?.name || 'User'}</span>
         </div>
       </button>
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 origin-top-right">
+        <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 origin-top-right">
           <div className="py-1">
             <button 
               onClick={handleOpenProfile}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors text-left"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors text-left"
             >
               <Settings size={16} className="text-gray-400 group-hover:text-indigo-500" />
               <span className="font-medium">My Profile</span>
             </button>
-            <div className="h-px bg-gray-100 my-1 w-full"></div>
+            <div className="h-px bg-gray-100 dark:bg-gray-700 my-1 w-full"></div>
             <button 
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors text-left"

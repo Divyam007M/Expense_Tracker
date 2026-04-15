@@ -53,6 +53,7 @@ function App() {
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
   const [editingExpense, setEditingExpense] = useState(null);
+  const [currencyFilter, setCurrencyFilter] = useState('all');
 
   // Sync Guest Data to Supabase on Login
   useEffect(() => {
@@ -266,9 +267,9 @@ function App() {
 
   if (authLoading || loadingExpenses || isSyncing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 flex-col gap-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-        <p className="text-gray-500 font-medium tracking-wide">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 flex-col gap-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
+        <p className="text-gray-500 dark:text-gray-400 font-medium tracking-wide">
           {isSyncing ? 'Syncing your data to the cloud...' : 'Loading your dashboard...'}
         </p>
       </div>
@@ -276,7 +277,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen pb-10 bg-gray-50 relative">
+    <div className="min-h-screen pb-10 bg-gray-50 dark:bg-gray-950 relative">
       <Toaster position="top-right" />
       <AuthModal />
       <ProfileModal />
@@ -319,6 +320,8 @@ function App() {
             expenses={filteredExpenses} 
             onDeleteExpense={handleDeleteExpense} 
             onEditExpense={(expense) => setEditingExpense(expense)}
+            currencyFilter={currencyFilter}
+            onCurrencyFilterChange={setCurrencyFilter}
           />
           <BudgetAdvisor expenses={filteredExpenses} />
         </div>

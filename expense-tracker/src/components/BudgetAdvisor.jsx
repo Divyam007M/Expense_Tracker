@@ -76,17 +76,17 @@ function BudgetAdvisor({ expenses }) {
   };
 
   return (
-    <div className="bg-white shadow rounded-xl p-6 border border-gray-100 flex flex-col gap-6">
+    <div className="bg-white dark:bg-gray-900 shadow rounded-xl p-6 border border-gray-100 dark:border-gray-700 flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-indigo-100 p-2 rounded-lg">
+          <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg">
             <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-800">AI Budget Advisor</h2>
-            <p className="text-sm text-gray-500">Get personalized spending tips</p>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">AI Budget Advisor</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Get personalized spending tips</p>
           </div>
         </div>
         <button
@@ -109,35 +109,35 @@ function BudgetAdvisor({ expenses }) {
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-700 p-4 rounded-lg text-sm border border-red-100 italic">
+        <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg text-sm border border-red-100 dark:border-red-800 italic">
           {error}
         </div>
       )}
 
       {loading && (
         <div className="space-y-4 animate-pulse">
-          <div className="h-4 bg-gray-100 rounded w-3/4"></div>
-          <div className="h-8 bg-gray-100 rounded"></div>
+          <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-3/4"></div>
+          <div className="h-8 bg-gray-100 dark:bg-gray-700 rounded"></div>
           <div className="space-y-2 pt-2">
-            <div className="h-4 bg-gray-100 rounded w-5/6"></div>
-            <div className="h-4 bg-gray-100 rounded w-4/6"></div>
+            <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-5/6"></div>
+            <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-4/6"></div>
           </div>
         </div>
       )}
 
       {advice && (
-        <div className="bg-gradient-to-br from-indigo-50/50 to-white p-5 rounded-xl border border-indigo-100 shadow-sm space-y-4">
+        <div className="bg-gradient-to-br from-indigo-50/50 dark:from-indigo-900/20 to-white dark:to-gray-800/50 p-5 rounded-xl border border-indigo-100 dark:border-indigo-800 shadow-sm space-y-4">
           <div className="space-y-1">
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-500">Highlight</span>
-            <p className="text-lg font-semibold text-gray-900 leading-tight">
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-tight">
               {advice.highlight}
             </p>
           </div>
 
           <div className="space-y-1">
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-600">Risk Assessment</span>
-            <p className="text-sm text-amber-800 bg-amber-50/50 p-3 rounded-lg border border-amber-100 italic">
-              " {advice.warning} "
+            <p className="text-sm text-amber-800 dark:text-amber-200 bg-amber-50/50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-100 dark:border-amber-800 italic">
+              {advice.warning}
             </p>
           </div>
 
@@ -145,7 +145,7 @@ function BudgetAdvisor({ expenses }) {
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-500">Actionable Advice</span>
             <ul className="space-y-2">
               {advice.actionable_advice.map((tip, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
+                <li key={index} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
                   <svg className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
