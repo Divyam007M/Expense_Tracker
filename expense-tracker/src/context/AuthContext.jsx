@@ -190,8 +190,12 @@ export function AuthProvider({ children }) {
 
   // Google OAuth
   const signInWithGoogle = async () => {
+    const redirectTo = `${window.location.origin}/`;
     return await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo,
+      },
     });
   };
 

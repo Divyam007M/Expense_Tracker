@@ -166,7 +166,7 @@ function AuthModal() {
       const { error } = await signInWithGoogle();
       if (error) throw error;
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message, "Google Sign In Failed");
     }
   };
 
