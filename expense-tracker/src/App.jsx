@@ -313,7 +313,7 @@ function App() {
       toast.success("Subscription added!");
     } catch (err) {
       console.error("Error adding recurring expense", err);
-      toast.error("Failed to add subscription.");
+      toast.error(`Failed to add subscription: ${err.message || 'Unknown error'}`);
     }
   };
 
