@@ -34,7 +34,7 @@ const CATEGORIES = [
   'Other'
 ];
 
-function ExpenseForm({ onAddExpense }) {
+function ExpenseForm({ onAddExpense, onOpenRecurring }) {
   const { currencies, selectedCurrency: dominantCurrency } = useCurrency() || { currencies: Object.keys(CURRENCY_SYMBOLS), selectedCurrency: 'INR' };
   const [amount, setAmount] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState(dominantCurrency || 'INR');
@@ -324,13 +324,22 @@ function ExpenseForm({ onAddExpense }) {
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={isUploading}
-          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-2 transition-colors disabled:opacity-50"
-        >
-          Add Expense
-        </button>
+        <div className="flex flex-col gap-2 mt-2">
+          <button
+            type="submit"
+            disabled={isUploading}
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
+          >
+            Add Expense
+          </button>
+          <button
+            type="button"
+            onClick={onOpenRecurring}
+            className="w-full flex justify-center py-2 px-4 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            Recurring Expenses
+          </button>
+        </div>
       </form>
 
       <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">

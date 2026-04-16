@@ -140,6 +140,11 @@ function ExpenseList({ expenses, onDeleteExpense, onEditExpense, currencyFilter 
                       <span className="px-2 py-0.5 inline-flex text-xs font-semibold rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">
                         {expense.currency || 'INR'}
                       </span>
+                      {expense.is_recurring && (
+                        <span className="px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                          Recurring
+                        </span>
+                      )}
                       <span
                         className="font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-[10px] flex items-center gap-1 cursor-pointer transition-colors hover:bg-gray-200 dark:hover:bg-gray-600"
                         title={expense.id}
@@ -226,6 +231,11 @@ function ExpenseList({ expenses, onDeleteExpense, onEditExpense, currencyFilter 
                       <span className="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300">
                         {expense.category}
                       </span>
+                      {expense.is_recurring && (
+                        <span className="ml-2 px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                          Recurring
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-[200px] truncate">{expense.note || '-'}</td>
                     <td className="px-6 py-4 whitespace-nowrap">

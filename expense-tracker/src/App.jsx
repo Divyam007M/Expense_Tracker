@@ -9,6 +9,7 @@ import EditExpenseModal from './components/EditExpenseModal';
 import BudgetAdvisor from './components/BudgetAdvisor';
 import AuthModal from './components/AuthModal';
 import ProfileModal from './components/ProfileModal';
+import RecurringExpensesModal from './components/RecurringExpensesModal';
 import { useAuth } from './context/AuthContext';
 import { useCurrency } from './context/CurrencyContext';
 import { supabase } from './lib/supabaseClient';
@@ -26,6 +27,9 @@ function App() {
   
   const [loadingExpenses, setLoadingExpenses] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  
+  const [recurringExpenses, setRecurringExpenses] = useState([]);
+  const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
 
   // Deriving and setting dominant currency dynamically
   const dominantCurrency = useMemo(() => {
@@ -117,6 +121,78 @@ function App() {
 
     syncAndFetchData();
   }, [user, authLoading]);
+
+  // Fetch Recurring Expenses
+  useEffect(() => {
+    const fetchRecurring = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from('recurring_expenses')
+          .select('*')
+          .eq('user_id', user.id);
+        
+        if (error) {
+          console.error("Error fetching recurring expenses:", error);
+        } else {
+          setRecurringExpenses(data || []);
+        }
+      }
+    };
+    fetchRecurring();
+  }, [user]);
+
+  // Automation Logic: Process Recurring Expenses
+  useEffect(() => {
+    const processRecurring = async () => {
+      if (!user || loadingExpenses || isSyncing || recurringExpenses.length === 0) return;
+
+      const currentMonth = new Date().toISOString().substring(0, 7); // YYYY-MM
+      const addedThisSession = [];
+
+      for (const recurring of recurringExpenses) {
+        if (!recurring.is_active) continue;
+
+        // Check if already added for this month in local state
+        const alreadyExists = expenses.some(exp => 
+          exp.description === recurring.title && 
+          exp.category === recurring.category && 
+          exp.date.startsWith(currentMonth)
+        );
+
+        if (!alreadyExists) {
+          try {
+            const newExpenseData = {
+              amount: recurring.amount,
+              category: recurring.category,
+              date: new Date().toISOString().split('T')[0],
+              currency: 'INR', // Defaulting to INR for recurring for now
+              description: recurring.title,
+              user_id: user.id,
+              is_recurring: true
+            };
+
+            const { data, error } = await supabase
+              .from('expenses')
+              .insert([newExpenseData])
+              .select()
+              .single();
+
+            if (error) throw error;
+            addedThisSession.push({ ...data, note: data.description });
+          } catch (err) {
+            console.error("Error auto-adding recurring expense:", err);
+          }
+        }
+      }
+
+      if (addedThisSession.length > 0) {
+        setExpenses(prev => [...addedThisSession, ...prev]);
+        toast.success(`Added ${addedThisSession.length} recurring expenses for this month!`);
+      }
+    };
+
+    processRecurring();
+  }, [user, loadingExpenses, isSyncing, recurringExpenses]);
 
   // Persist guest data locally whenever it changes (if not logged in)
   useEffect(() => {
@@ -218,6 +294,58 @@ function App() {
       toast.error("Failed to update expense.");
     }
   };
+  
+  const handleAddRecurring = async (newRec) => {
+    if (!user) {
+      toast.error("Please login to manage recurring expenses.");
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('recurring_expenses')
+        .insert([{ ...newRec, user_id: user.id }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      setRecurringExpenses(prev => [data, ...prev]);
+      toast.success("Subscription added!");
+    } catch (err) {
+      console.error("Error adding recurring expense", err);
+      toast.error("Failed to add subscription.");
+    }
+  };
+
+  const handleDeleteRecurring = async (id) => {
+    try {
+      const { error } = await supabase.from('recurring_expenses').delete().eq('id', id);
+      if (error) throw error;
+      setRecurringExpenses(prev => prev.filter(r => r.id !== id));
+      toast.success("Subscription removed.");
+    } catch (err) {
+      console.error("Error deleting recurring expense", err);
+      toast.error("Failed to delete.");
+    }
+  };
+
+  const handleToggleRecurring = async (id, status) => {
+    try {
+      const { data, error } = await supabase
+        .from('recurring_expenses')
+        .update({ is_active: status })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      setRecurringExpenses(prev => prev.map(r => r.id === id ? data : r));
+      toast.success(status ? "Subscription activated!" : "Subscription paused.");
+    } catch (err) {
+      console.error("Error toggling recurring expense", err);
+      toast.error("Failed to update status.");
+    }
+  };
 
   const handleClearFilter = () => {
     setFilterType('all');
@@ -300,7 +428,7 @@ function App() {
       <main className="max-w-7xl mx-auto mt-8 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-1 space-y-8">
           <ExpenseSummary expenses={filteredExpenses} />
-          <ExpenseForm onAddExpense={handleAddExpense} />
+          <ExpenseForm onAddExpense={handleAddExpense} onOpenRecurring={() => setIsRecurringModalOpen(true)} />
           <ExpenseChart expenses={filteredExpenses} />
         </div>
         <div className="md:col-span-2 flex flex-col gap-6">
@@ -334,6 +462,15 @@ function App() {
           onClose={() => setEditingExpense(null)}
         />
       )}
+
+      <RecurringExpensesModal 
+        isOpen={isRecurringModalOpen}
+        onClose={() => setIsRecurringModalOpen(false)}
+        recurringExpenses={recurringExpenses}
+        onAddRecurring={handleAddRecurring}
+        onDeleteRecurring={handleDeleteRecurring}
+        onToggleRecurring={handleToggleRecurring}
+      />
     </div>
   );
 }
