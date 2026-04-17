@@ -69,7 +69,7 @@ http://localhost:5173
 
 📸 Screenshots
 
-<img width="1292" height="1005" alt="image" src="https://github.com/user-attachments/assets/ab11b74f-d552-488c-ae6a-270e604684b4" />
+<img width="1593" height="1000" alt="Screenshot 2026-04-17 160632" src="https://github.com/user-attachments/assets/39e990cd-77ed-4b7f-81d7-8106699445fc" />
 
 
 Dashboard :--
